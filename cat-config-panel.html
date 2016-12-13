@@ -1,0 +1,666 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-color-picker/paper-color-input.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<!-- <link rel="import" href="../polymer-sortablejs/polymer-sortablejs.html"> -->
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-badge/paper-badge.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="themes/technology/technology.html">
+
+<dom-module id="cat-config-panel">
+
+	<style include="iron-flex iron-flex-alignment"></style>
+
+	<style>
+	paper-dropdown-menu {
+		width: 100%;
+	}
+	paper-toggle-button {
+		position: relative;
+		top: 10px;
+	}
+	paper-checkbox {
+		/*position: relative;*/
+		/*top: 6px;*/
+		--paper-checkbox-label: {
+			font-size: 14px;
+	    	color: #919191;
+		}
+	}
+	paper-input, paper-color-input, paper-dropdown-menu, paper-slider {
+		--paper-input-container: {
+			padding: 0;
+		}
+		--paper-input-container-input: {
+			margin-top: 6px;
+		}
+		--paper-input-container-label-focus: {
+			margin-top: 0;
+		}
+		--paper-input-container-label-floating: {
+			font-size: 21px;
+		}
+	}
+	paper-dropdown-menu {
+		
+	}
+	paper-menu paper-item {
+		--paper-item-focused-before: {
+			background: #fff;
+		}
+		--paper-item-min-height: 54px;
+	}
+	paper-menu {
+		--paper-menu-focused-item-after: {
+			background: #fff;
+		}
+		--paper-menu-selected-item: {
+			color: #373b50;
+		}
+	}
+	paper-dropdown-menu {
+		--paper-dropdown-menu-ripple: {
+			bottom: 0;		
+		}
+	}
+	paper-slider {
+		width: auto;
+		--paper-slider-input: {
+			width: 100px;
+		}
+	}
+	paper-badge {
+		--paper-badge-background: rgba(0,0,0,0);
+		--paper-badge-text-color: #ccc;
+	    --paper-badge-width: 20px;
+	    --paper-badge-height: 20px;
+	    --paper-badge-margin-left: 22px;
+	    --paper-badge-margin-bottom: -19px;
+	}
+	paper-tooltip {
+		max-width: 200px;
+		--paper-tooltip: {
+			font-size: 14px;
+		    margin-bottom: -10px;
+		}
+	}
+	
+
+
+	:host {
+		font-family: 'Roboto', 'Noto', sans-serif;
+		font-weight: 300;
+	}
+
+	.panel {
+		padding: 36px;
+		margin: 30px;
+		background: #eee;
+		max-width: 1200px;
+	}
+	.tabs {
+		max-width: 400px;
+	}
+	.tab {
+		@apply(--layout-horizontal);
+		@apply(--layout-wrap);
+	}
+	.tabs-contents {
+		margin-top: 36px;
+	}
+	.subtabs {
+		@apply(--layout-flex-1);
+		background: #eee;
+		padding: 0;
+		position: relative;
+		right: 10px;
+	}
+	.subtab {
+		background: #f9fafb;
+		margin-bottom: 3px;
+		color: #999;
+		cursor: pointer;
+		transition: left .2s,background-color.2s;
+		position: relative;
+		left: 5px;
+		justify-content: flex-end;
+		padding: 0 24px;
+		text-align: center;
+		line-height: 54px;
+	}
+	.subtab.iron-selected {
+		background: #fff;
+		font-weight: 300;
+		box-shadow: -4px 0 10px -4px rgba(0,0,0,.12),10px 0 0 0 #fff,0 -4px 10px -4px rgba(0,0,0,.12),0 4px 10px -4px rgba(0,0,0,.12);
+		left: 0;
+	}
+	.subtabs-contents {
+		@apply(--layout-flex-2);
+		background: #fff;
+		box-shadow: 0 0 10px rgba(0,0,0,.12);
+	}
+	.subtabs-content {
+		@apply(--layout-horizontal);
+		@apply(--layout-wrap);
+		@apply(--layout-around-justified);
+		
+		padding: 10px;
+	}
+	.control {
+		width: 170px;
+		margin:  10px;
+		padding: 10px;
+		/*border: 1px solid #f2f2f2;*/
+		/*box-shadow: 0 0 5px rgba(0,0,0,.09);*/
+		/*position: relative;*/
+	}
+	.control-label {
+		font-size: 16px;
+		color: #919191;
+		margin-bottom: 7px;
+	}
+	[disabled] .control-label {
+		opacity: 0.33;
+	}
+	.dropdown-label {
+		margin-bottom: 0 !important;
+	}
+	.control:empty {
+		height: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+		margin-top: 0;
+		margin-bottom: 0;
+		border: none;
+	}
+	
+
+	</style>
+	<template>
+
+		<iron-ajax
+			id="json"
+			auto
+			url="{{sourceFile}}"
+			handle-as="json"
+			last-response="{{ajaxResponse}}">
+		</iron-ajax>
+
+		<div class="panel">
+		
+			<paper-tabs class="tabs" selected="{{selectedTab}}">
+				<template is="dom-repeat" items="{{ajaxResponse}}" as="tab">
+					<template is="dom-if" if="{{exists(tab.tabName)}}">
+						<paper-tab>{{tab.tabName}}</paper-tab>
+					</template>
+				</template>
+			</paper-tabs>
+
+			<iron-pages class="tabs-contents" selected="{{selectedTab}}">
+					<template is="dom-repeat" items="{{ajaxResponse}}" as="tab">
+						<div class="tab"> 
+							
+							<template is="dom-if" if="{{exists(tab.subtabs)}}">
+
+								<paper-menu class="subtabs" selected="{{selectedSubtab}}">
+									<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
+										<paper-item class="subtab">{{subtab.subtabName}}</paper-item>
+									</template>
+								</paper-menu>
+
+								<iron-pages class="subtabs-contents" selected="{{selectedSubtab}}">
+									<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
+										<div class="subtabs-content">
+											<template is="dom-repeat" items="{{subtab.controls}}" as="control">
+										
+												<!-- <template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
+													<div class="control">
+														<div class="control-label">{{control.name}}</div>
+														<paper-toggle-button label="{{control.name}}"></paper-toggle-button>
+													</div>
+												</template> -->
+
+												<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
+													<div class="control">
+														<div class="control-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-checkbox id="{{control.id}}" class="main-control"></paper-checkbox>
+													</div>
+												</template>
+
+												<!-- <template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
+													<div class="control">
+														<paper-input type="number" label="{{control.name}}"></paper-input>
+													</div>
+												</template> -->
+
+												<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
+													<div class="control">
+														<div class="control-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-slider id="{{control.id}}" class="main-control" min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" editable></paper-slider>
+													</div>
+												</template>
+
+												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
+													<div class="control">
+														<paper-color-input id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
+													</div>
+												</template>
+
+												<template is="dom-if" if="{{isEqual(control.type, 'dropdown')}}">
+													<div class="control">
+														<div class="control-label dropdown-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float>
+															<paper-listbox class="dropdown-content">
+																<template is="dom-repeat" items="{{control.options}}" as="option">
+																	<paper-item>{{option}}</paper-item>
+																</template>
+															</paper-listbox>
+														</paper-dropdown-menu>
+													</div>
+												</template>
+
+											</template>
+
+											<template is="dom-repeat" items="{{emptyControls}}">
+												<div class="control"></div>
+											</template>
+										</div>
+									</template>
+								</iron-pages>
+
+							</template>
+
+							<!-- this dom-if template is very similar with 'exists(tab.subtab)' template above -->
+							<!-- any changes made in this one most probably need the same change on the above one -->
+							<!-- and vice-versa -->
+							<template is="dom-if" if="{{exists(tab.controls)}}">
+									
+									<iron-pages class="subtabs-contents" selected="0">
+
+										<div class="subtabs-content">
+											<template is="dom-repeat" items="{{tab.controls}}" as="control">
+
+												<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
+													<div class="control">
+														<div class="control-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-checkbox id="{{control.id}}" class="main-control"></paper-checkbox>
+													</div>
+												</template>
+												
+												<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
+													<div class="control">
+														<div class="control-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-slider min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" id="{{control.id}}" class="main-control" editable></paper-slider>
+													</div>
+												</template>
+
+												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
+													<div class="control">
+														<paper-color-input id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
+													</div>
+												</template>
+
+												<template is="dom-if" if="{{isEqual(control.type, 'dropdown')}}">
+													<div class="control">
+														<div class="control-label dropdown-label">
+															<span>{{control.name}}
+																<template is="dom-if" if="{{exists(control.tip)}}">
+																	<paper-badge id="{{control.id}}Badge" icon="icons:info-outline"></paper-badge>
+																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+																</template>
+															</span>
+														</div>
+														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float>
+															<paper-listbox class="dropdown-content">
+																<template is="dom-repeat" items="{{control.options}}" as="option">
+																	<paper-item>{{option}}</paper-item>
+																</template>
+															</paper-listbox>
+														</paper-dropdown-menu>
+													</div>
+												</template>
+
+											</template>
+
+											<template is="dom-repeat" items="{{emptyControls}}">
+												<div class="control"></div>
+											</template>
+										</div>
+
+									</iron-pages>
+
+							</template>
+
+						</div>
+	
+					</template>
+			</iron-pages>
+
+		</div>
+
+	</template>
+</dom-module>
+
+<script>
+Polymer({
+	is: 'cat-config-panel',
+	
+	properties: {
+		sourceFile: String
+	},
+	
+	ready: function() {
+		this.selectedTab = 0;
+		this.selectedSubtab = 0;
+		this.controlsWithSubtabs = 1;
+
+		this.emptyControls = [1, 2, 3, 4, 5, 6];
+	},
+	
+	isEqual: function(val1, val2) {
+		return val1 === val2;
+	},
+	
+	exists: function(prop) {		
+		return prop;
+	},
+	
+	onJsonLoaded: function(callback) {
+		if (this.$.json.lastResponse) {
+			callback(this.$.json.lastResponse);
+		} else {
+			this.$.json.addEventListener('response', function(e) {
+				callback(e.target.lastResponse);
+			});
+		}
+	},
+
+	// Dinamically added elements to local dom (dom-if & dom-repeat templates) are loaded asyncronously.
+	// That's why I used setTimeout(). A better approach is needed (http://stackoverflow.com/questions/40948690/when-is-a-polymer-local-dom-containing-multiple-dom-if-and-dom-repeats-ready)
+
+	onLocalDomLoaded: function(callback) {
+		var self = this;
+
+		this.onJsonLoaded(function() {
+			
+			if (self.localDomLoaded) {
+				callback();
+			} else {
+				setTimeout(function() {
+					self.localDomLoaded = true;
+					callback();
+				}, 200);
+			}
+
+		});
+	},
+
+	modifyPolymerCssDinamicaly: function() {
+		var badges = this.querySelectorAll('paper-badge');
+		badges.forEach(function(badge) {
+			var icon = badge.$$('iron-icon');
+			icon.style.width = '16px';
+			icon.style.height = '16px';
+		});
+	},
+	
+	attached: function() {
+		var self = this;
+
+		self.onLocalDomLoaded(function(response) {
+			
+			self.getLimits();
+			self.getSlaveDuplicates();
+			
+			var dropdowns = self.querySelectorAll('paper-dropdown-menu');			
+			dropdowns.forEach(function(dropdown) {
+				self.listen(dropdown, 'iron-select', 'dropdownChanged');
+				self.checkDropdownLimits(dropdown);
+			});
+
+			var sliders = self.querySelectorAll('paper-slider');
+			sliders.forEach(function(el) {
+				// self.listen(el, 'immediate-value-change', 'sliderChanged');
+				self.listen(el, 'value-change', 'sliderChanged');
+			});
+
+			var checkboxes = self.querySelectorAll('paper-checkbox');
+			checkboxes.forEach(function(checkbox) {
+				self.listen(checkbox, 'change', 'checkboxChanged');
+				self.checkCheckboxLimits(checkbox);
+			});
+			
+			self.getControls();
+
+
+			self.modifyPolymerCssDinamicaly();
+		});
+				
+	},
+
+	getSlaveDuplicates: function() {
+		var i, j, len = this.limits.length, iSlave, jSlave, x, y, xLen, yLen,
+			duplicates = {};
+
+		for (i = 0; i < len; i++) {
+			for (j = i + 1; j < len; j++) {
+				iSlave = this.limits[i].slave;
+				jSlave = this.limits[j].slave;
+				// if both slaves are array (currently only checkboxes have slave of type array)
+				// i should also include dropdowns and sliders (the algorithm gets even more complex)
+				if (iSlave instanceof Array && jSlave instanceof Array) {
+					for (x = 0, xLen = iSlave.length; x < xLen; x++) {
+						for (y = 0, yLen = jSlave.length; y < yLen; y++) {
+							if (iSlave[x] === jSlave[y]) {
+								if (duplicates[iSlave[x]]) {
+									if (duplicates[iSlave[x]].indexOf(this.limits[j].master) === -1) {
+										duplicates[iSlave[x]].push(this.limits[j].master);
+									}
+								} else {
+									duplicates[iSlave[x]] = [this.limits[i].master, this.limits[j].master];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		this.duplicates = duplicates;
+	},
+
+
+	getLimits: function() {
+		var self = this;
+		this.onJsonLoaded(function(response) {
+			response.forEach(function(obj) {
+				if (obj.limits) {					
+					self.limits = obj.limits;
+				}
+			});
+		});
+	},
+	checkDropdownLimits: function(dropdown) {
+		var self = this,
+			options = [],
+			selected;
+			
+		if (dropdown.selectedItem) {
+			selected = dropdown.selectedItem.innerHTML.trim();
+
+			for (var i = 0; i < dropdown.contentElement.items.length; i++) {
+				options.push(dropdown.contentElement.items[i].innerHTML.trim());
+			}
+			this.limits.forEach(function(limit) {
+				if (limit.master === dropdown.id) {
+					self.$$('#' + limit.slave).disabled = false;
+					self.$$('#' + limit.slave).parentElement.removeAttribute('disabled');
+					if (limit.disabled && limit.disabled.length && limit.disabled.indexOf(selected) !== -1) {
+						self.$$('#' + limit.slave).disabled = true;
+						self.$$('#' + limit.slave).parentElement.setAttribute('disabled', '');
+					}
+				}
+			});
+		}
+	},
+	checkCheckboxLimits: function(checkbox) {
+		var self = this;
+		
+		this.limits.forEach(function(limit) {
+			if (limit.master === checkbox.id) {
+				limit.slave.forEach(function(slave) {					
+					if (checkbox.checked) {
+						self.$$('#' + slave).disabled = false;
+						self.$$('#' + slave).parentElement.removeAttribute('disabled');
+					} else {
+						self.$$('#' + slave).disabled = true;
+						self.$$('#' + slave).parentElement.setAttribute('disabled', '');
+					}
+
+					//disable it if any of the master duplicates are unchecked
+					if (self.duplicates[slave]) {
+						
+						//assume all masters are checked
+						self.$$('#' + slave).disabled = false;
+						self.$$('#' + slave).parentElement.removeAttribute('disabled');
+						
+						self.duplicates[slave].forEach(function(master) {
+							if(!self.$$('#' + master).checked) {
+								self.$$('#' + slave).disabled = true;
+								self.$$('#' + slave).parentElement.setAttribute('disabled', '');
+							}
+						});
+					}
+				});
+			}
+		});
+	
+	},
+
+	dropdownChanged: function(e) {
+		var self = this,
+			dropdown = Polymer.dom(e.target).parentNode,
+			options = [];
+		for (var i = 0; i < dropdown.contentElement.items.length; i++) {
+			options.push(dropdown.contentElement.items[i].innerHTML.trim());
+		}
+		this.fire('controlChanged', {name: dropdown.id, value: options[e.target.selected] });
+
+		this.checkDropdownLimits(dropdown);
+	},
+	sliderChanged: function(e) {
+		this.fire('controlChanged', {name: e.target.id, value: e.target.value});
+	},
+	checkboxChanged: function(e) {
+		this.fire('controlChanged', {name: e.target.id, value: e.target.checked});
+		this.checkCheckboxLimits(e.target);
+	},
+
+
+	setControlValue: function(name,  value) {
+		var element = this.$$('#' + name),
+			tagName, options  = [], i;
+
+		if (element) {
+			tagName = element.tagName;
+		} else {
+			console.log('CAT: the element provided to setControl function was not found');
+		}
+
+		if (tagName === 'PAPER-SLIDER') {
+			element.value = value;
+		}
+		if (tagName === 'PAPER-DROPDOWN-MENU') {
+			for (i = 0; i < element.contentElement.items.length; i++) {
+				options.push(element.contentElement.items[i].innerHTML.trim());
+			}
+			currentOption = options.indexOf(value);
+			element.contentElement.select(currentOption);
+		}
+		if (tagName === 'PAPER-CHECKBOX') {
+			element.checked = value;
+		}
+		// console.log(element, tagName);
+	},
+
+	camelcase: function(str) {
+		var a = str.split(' ');
+		a[0] = a[0].charAt(0).toLowerCase() + a[0].slice(1);
+		for (var i = 1; i < a.length; i++) {
+			a[i] = a[i].charAt(0).toUpperCase() + a[i].slice(1);
+		}
+		return a.join('');
+	},
+
+	dashedLowercase: function(str) {
+		return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+	},
+
+	getControls: function() {
+		var self = this,
+			controls, result = [];
+
+		controls = self.querySelectorAll('.main-control');
+		
+		controls.forEach(function(control) {				
+			
+			if (control.tagName === 'PAPER-SLIDER' || control.tagName === 'PAPER-DROPDOWN-MENU') {
+				result.push({name: control.id, value: control.value});
+			}
+			if (control.tagName === 'PAPER-CHECKBOX') {
+				result.push({name: control.id, value: control.checked});
+			}
+		});
+
+		return result;
+
+	}
+});
+</script>
