@@ -412,12 +412,12 @@ Polymer({
 		return prop;
 	},
 	
-	onJsonLoaded: function(callback) {
+	onJsonLoaded: function(callback, scope) {
 		if (this.$.json.lastResponse) {
-			callback(this.$.json.lastResponse);
+			callback.call(scope, this.$.json.lastResponse);
 		} else {
 			this.$.json.addEventListener('response', function(e) {
-				callback(e.target.lastResponse);
+				callback.call(scope, e.target.lastResponse);
 			});
 		}
 	},
@@ -425,26 +425,25 @@ Polymer({
 	// Dinamically added elements to local dom (dom-if & dom-repeat templates) are loaded asyncronously.
 	// That's why I used setTimeout(). A better approach is needed (http://stackoverflow.com/questions/40948690/when-is-a-polymer-local-dom-containing-multiple-dom-if-and-dom-repeats-ready)
 
-	onLocalDomLoaded: function(callback) {
-		var self = this;
+	onLocalDomLoaded: function(callback, scope) {
 
 		this.onJsonLoaded(function() {
 			
-			if (self.localDomLoaded) {
-				callback();
+			if (this.localDomLoaded) {
+				callback.call(scope);
 			} else {
 				setTimeout(function() {
-					self.localDomLoaded = true;
-					callback();
+					this.localDomLoaded = true;
+					callback.call(scope);
 				}, 200);
 			}
 
-		});
+		}, this);
 	},
 
 	modifyPolymerCssDinamicaly: function() {
 		var badges = this.querySelectorAll('paper-badge');
-		badges.forEach(function(badge) {
+		forEach(badges, function(badge) {
 			var icon = badge.$$('iron-icon');
 			icon.style.width = '16px';
 			icon.style.height = '16px';
@@ -452,36 +451,37 @@ Polymer({
 	},
 	
 	attached: function() {
-		var self = this;
-
-		self.onLocalDomLoaded(function(response) {
+		
+		this.onLocalDomLoaded(function(response) {
 			
-			self.getLimits();
-			self.getSlaveDuplicates();
+			this.fire('localDomLoaded');
+
+			this.getLimits();
+			this.getSlaveDuplicates();
 			
-			var dropdowns = self.querySelectorAll('paper-dropdown-menu');			
-			dropdowns.forEach(function(dropdown) {
-				self.listen(dropdown, 'iron-select', 'dropdownChanged');
-				self.checkDropdownLimits(dropdown);
-			});
+			var dropdowns = this.querySelectorAll('paper-dropdown-menu');			
+			forEach(dropdowns, function(dropdown) {
+				this.listen(dropdown, 'iron-select', 'dropdownChanged');
+				this.checkDropdownLimits(dropdown);
+			}, this);
 
-			var sliders = self.querySelectorAll('paper-slider');
-			sliders.forEach(function(el) {
-				// self.listen(el, 'immediate-value-change', 'sliderChanged');
-				self.listen(el, 'value-change', 'sliderChanged');
-			});
+			var sliders = this.querySelectorAll('paper-slider');
+			forEach(sliders, function(el) {
+				// this.listen(el, 'immediate-value-change', 'sliderChanged');
+				this.listen(el, 'value-change', 'sliderChanged');
+			}, this);
 
-			var checkboxes = self.querySelectorAll('paper-checkbox');
-			checkboxes.forEach(function(checkbox) {
-				self.listen(checkbox, 'change', 'checkboxChanged');
-				self.checkCheckboxLimits(checkbox);
-			});
+			var checkboxes = this.querySelectorAll('paper-checkbox');
+			forEach(checkboxes, function(checkbox) {
+				this.listen(checkbox, 'change', 'checkboxChanged');
+				this.checkCheckboxLimits(checkbox);
+			}, this);
 			
-			self.getControls();
+			this.getControls();
 
+			this.modifyPolymerCssDinamicaly();
 
-			self.modifyPolymerCssDinamicaly();
-		});
+		}, this);
 				
 	},
 
@@ -518,18 +518,16 @@ Polymer({
 
 
 	getLimits: function() {
-		var self = this;
 		this.onJsonLoaded(function(response) {
-			response.forEach(function(obj) {
+			forEach(response, function(obj) {
 				if (obj.limits) {					
-					self.limits = obj.limits;
+					this.limits = obj.limits;
 				}
-			});
-		});
+			}, this);
+		}, this);
 	},
 	checkDropdownLimits: function(dropdown) {
-		var self = this,
-			options = [],
+		var options = [],
 			selected;
 			
 		if (dropdown.selectedItem) {
@@ -538,55 +536,55 @@ Polymer({
 			for (var i = 0; i < dropdown.contentElement.items.length; i++) {
 				options.push(dropdown.contentElement.items[i].innerHTML.trim());
 			}
-			this.limits.forEach(function(limit) {
+			forEach(this.limits, function(limit) {
 				if (limit.master === dropdown.id) {
-					self.$$('#' + limit.slave).disabled = false;
-					self.$$('#' + limit.slave).parentElement.removeAttribute('disabled');
-					if (limit.disabled && limit.disabled.length && limit.disabled.indexOf(selected) !== -1) {
-						self.$$('#' + limit.slave).disabled = true;
-						self.$$('#' + limit.slave).parentElement.setAttribute('disabled', '');
-					}
+					limit.slave.forEach(function(slave) {
+						this.$$('#' + slave).disabled = false;
+						this.$$('#' + slave).parentElement.removeAttribute('disabled');
+						if (limit.disabled && limit.disabled.length && limit.disabled.indexOf(selected) !== -1) {
+							this.$$('#' + slave).disabled = true;
+							this.$$('#' + slave).parentElement.setAttribute('disabled', '');
+						}
+					}, this);
 				}
-			});
+			}, this);
 		}
 	},
 	checkCheckboxLimits: function(checkbox) {
-		var self = this;
 		
-		this.limits.forEach(function(limit) {
+		forEach(this.limits, function(limit) {
 			if (limit.master === checkbox.id) {
 				limit.slave.forEach(function(slave) {					
 					if (checkbox.checked) {
-						self.$$('#' + slave).disabled = false;
-						self.$$('#' + slave).parentElement.removeAttribute('disabled');
+						this.$$('#' + slave).disabled = true;
+						this.$$('#' + slave).parentElement.setAttribute('disabled', '');
 					} else {
-						self.$$('#' + slave).disabled = true;
-						self.$$('#' + slave).parentElement.setAttribute('disabled', '');
+						this.$$('#' + slave).disabled = false;
+						this.$$('#' + slave).parentElement.removeAttribute('disabled');
 					}
 
 					//disable it if any of the master duplicates are unchecked
-					if (self.duplicates[slave]) {
+					if (this.duplicates[slave]) {
 						
 						//assume all masters are checked
-						self.$$('#' + slave).disabled = false;
-						self.$$('#' + slave).parentElement.removeAttribute('disabled');
+						this.$$('#' + slave).disabled = false;
+						this.$$('#' + slave).parentElement.removeAttribute('disabled');
 						
-						self.duplicates[slave].forEach(function(master) {
-							if(!self.$$('#' + master).checked) {
-								self.$$('#' + slave).disabled = true;
-								self.$$('#' + slave).parentElement.setAttribute('disabled', '');
+						forEach(this.duplicates[slave], function(master) {
+							if(!this.$$('#' + master).checked) {
+								this.$$('#' + slave).disabled = true;
+								this.$$('#' + slave).parentElement.setAttribute('disabled', '');
 							}
-						});
+						}, this);
 					}
-				});
+				}, this);
 			}
-		});
+		}, this);
 	
 	},
 
 	dropdownChanged: function(e) {
-		var self = this,
-			dropdown = Polymer.dom(e.target).parentNode,
+		var dropdown = Polymer.dom(e.target).parentNode,
 			options = [];
 		for (var i = 0; i < dropdown.contentElement.items.length; i++) {
 			options.push(dropdown.contentElement.items[i].innerHTML.trim());
@@ -611,7 +609,7 @@ Polymer({
 		if (element) {
 			tagName = element.tagName;
 		} else {
-			console.log('CAT: the element provided to setControl function was not found');
+			console.log('CAT: the element provided (' + name + ') to setControl function was not found');
 		}
 
 		if (tagName === 'PAPER-SLIDER') {
@@ -644,12 +642,11 @@ Polymer({
 	},
 
 	getControls: function() {
-		var self = this,
-			controls, result = [];
+		var controls, result = [];
 
-		controls = self.querySelectorAll('.main-control');
+		controls = this.querySelectorAll('.main-control');
 		
-		controls.forEach(function(control) {				
+		forEach(controls, function(control) {				
 			
 			if (control.tagName === 'PAPER-SLIDER' || control.tagName === 'PAPER-DROPDOWN-MENU') {
 				result.push({name: control.id, value: control.value});
@@ -663,4 +660,11 @@ Polymer({
 
 	}
 });
+
+function forEach(array, callback, scope) {
+	for (var i = 0; i < array.length; i++) {
+		callback.call(scope, array[i], i);
+	}
+}
+
 </script>

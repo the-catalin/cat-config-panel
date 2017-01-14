@@ -10,7 +10,7 @@ function connectComponentWithConfigPanel(componentName, componentString) {
 	document.body.insertBefore(demo, configPanel);
 
 	// Populate Config Panel's controls with the initial property values of the component
-	configPanel.onLocalDomLoaded(function() {
+	configPanel.addEventListener('localDomLoaded', function() {
 		for (var key in component.properties) {
 			if (component.properties.hasOwnProperty(key)) {
 				if (typeof(component.properties[key]) === 'object') {
@@ -28,8 +28,12 @@ function connectComponentWithConfigPanel(componentName, componentString) {
 	// giving it the new values from the Config Panel
 	configPanel.addEventListener('controlChanged', function(e, v) {
 		
-		component.remove();
-		demo.remove();
+		// component.remove();
+		// demo.remove();
+		// in fact, IE hack:
+		if (component.parentNode) component.parentNode.removeChild(component);
+		if (demo.parentNode) demo.parentNode.removeChild(demo);
+		
 		demo = document.createElement('div');
 		demo.insertAdjacentHTML('afterbegin', componentString);				
 		component = demo.querySelector(componentName);
