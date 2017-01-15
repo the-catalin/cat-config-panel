@@ -82,14 +82,15 @@
 		}
 	}
 	iron-icon {
-		position: absolute;
-		padding: 0;
 		width: 16px;
 		height: 16px;
-		margin-left: 5px;
-		margin-top: 2px;
+		margin-left: 4px;
+		margin-top: -1px;
 		opacity: 0.5;
 		cursor: pointer;
+	}
+	.infoicon {
+		position: absolute;
 	}
 	paper-tooltip {
 		max-width: 200px;
@@ -239,7 +240,7 @@
 														<div class="control-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>					
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
@@ -259,7 +260,7 @@
 														<div class="control-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
@@ -279,7 +280,7 @@
 														<div class="control-label dropdown-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
@@ -320,7 +321,7 @@
 														<div class="control-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
@@ -334,7 +335,7 @@
 														<div class="control-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
@@ -354,7 +355,7 @@
 														<div class="control-label dropdown-label">
 															<span>{{control.name}}
 																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon>
+																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
 																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
 																</template>
 															</span>
