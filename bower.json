@@ -1,12 +1,13 @@
 {
   "name": "cat-panel",
+  "version": "0.7.0",
+  "description": "Config Panel for cat components",
   "authors": [
-    "Art Vandelay <catalinungureanu@gmail.com>"
+    "Catalin Ungureanu <catalinungureanu@gmail.com>"
   ],
-  "description": "",
-  "main": "",
+  "main": "cat-config-panel.html",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/the-catalin/cat-config-panel",
   "ignore": [
     "**/.*",
     "node_modules",

@@ -174,8 +174,9 @@
 		color: #919191;
 		margin-bottom: 7px;
 	}
-	[disabled] .control-label {
+	[disabled].control {
 		opacity: 0.33;
+		pointer-events : none;
 	}
 	.dropdown-label {
 		margin-bottom: 0 !important;
@@ -271,7 +272,7 @@
 
 												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
 													<div class="control">
-														<paper-color-input id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
+														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
 													</div>
 												</template>
 
@@ -346,7 +347,7 @@
 
 												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
 													<div class="control">
-														<paper-color-input id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
+														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
 													</div>
 												</template>
 
@@ -453,22 +454,27 @@ Polymer({
 			this.getLimits();
 			this.getSlaveDuplicates();
 			
-			var dropdowns = this.querySelectorAll('paper-dropdown-menu');			
+			var dropdowns = this.querySelectorAll('paper-dropdown-menu.main-control');			
 			forEach(dropdowns, function(dropdown) {
 				this.listen(dropdown, 'iron-select', 'dropdownChanged');
 				this.checkDropdownLimits(dropdown);
 			}, this);
 
-			var sliders = this.querySelectorAll('paper-slider');
+			var sliders = this.querySelectorAll('paper-slider.main-control');
 			forEach(sliders, function(el) {
 				// this.listen(el, 'immediate-value-change', 'sliderChanged');
 				this.listen(el, 'value-change', 'sliderChanged');
 			}, this);
 
-			var checkboxes = this.querySelectorAll('paper-checkbox');
+			var checkboxes = this.querySelectorAll('paper-checkbox.main-control');
 			forEach(checkboxes, function(checkbox) {
 				this.listen(checkbox, 'change', 'checkboxChanged');
 				this.checkCheckboxLimits(checkbox);
+			}, this);
+
+			var colors = this.querySelectorAll('paper-color-input');
+			forEach(colors, function(color) {
+				this.listen(color.$$('paper-color-picker'), 'colorChanged', 'colorChanged');
 			}, this);
 			
 			this.getControls();
@@ -514,6 +520,8 @@ Polymer({
 			forEach(response, function(obj) {
 				if (obj.limits) {					
 					this.limits = obj.limits;
+				} else {
+					this.limits = [];
 				}
 			}, this);
 		}, this);
@@ -547,7 +555,7 @@ Polymer({
 		forEach(this.limits, function(limit) {
 			if (limit.master === checkbox.id) {
 				limit.slave.forEach(function(slave) {					
-					if (checkbox.checked) {
+					if (checkbox.checked && !limit.reverse || !checkbox.checked && limit.reverse) {
 						this.$$('#' + slave).disabled = true;
 						this.$$('#' + slave).parentElement.setAttribute('disabled', '');
 					} else {
@@ -592,6 +600,9 @@ Polymer({
 		this.fire('controlChanged', {name: e.target.id, value: e.target.checked});
 		this.checkCheckboxLimits(e.target);
 	},
+	colorChanged: function(e, firedObject) {
+		this.fire('controlChanged', {name: e.target.parentNode.id, value: firedObject.rgbaColor});
+	},
 
 
 	setControlValue: function(name,  value) {
@@ -603,21 +614,25 @@ Polymer({
 		} else {
 			console.log('CAT: the element provided (' + name + ') to setControl function was not found');
 		}
-
+		
 		if (tagName === 'PAPER-SLIDER') {
 			element.value = value;
-		}
-		if (tagName === 'PAPER-DROPDOWN-MENU') {
+		} else if (tagName === 'PAPER-DROPDOWN-MENU') {
 			for (i = 0; i < element.contentElement.items.length; i++) {
 				options.push(element.contentElement.items[i].innerHTML.trim());
 			}
 			currentOption = options.indexOf(value);
 			element.contentElement.select(currentOption);
-		}
-		if (tagName === 'PAPER-CHECKBOX') {
+		} else if (tagName === 'PAPER-CHECKBOX') {
 			element.checked = value;
+		} else if (tagName === 'PAPER-COLOR-INPUT') {
+			var color = value.replace(/^rgba?\(|\s+|\)$/g,'').split(',');
+			var val = {"red":parseInt(color[0]),"green":parseInt(color[1]),"blue":parseInt(color[2]),"alpha": parseFloat(color[3])};
+			// element.value = val;
+			element.$.picker.set('immediateColor', val);
+			element.$.picker.setColor();
+
 		}
-		// console.log(element, tagName);
 	},
 
 	camelcase: function(str) {
@@ -646,6 +661,11 @@ Polymer({
 			if (control.tagName === 'PAPER-CHECKBOX') {
 				result.push({name: control.id, value: control.checked});
 			}
+			if (control.tagName === 'PAPER-COLOR-INPUT') {
+				result.push({name: control.id, value: control.$$('paper-color-picker').rgbaColor});
+			}
+
+
 		});
 
 		return result;

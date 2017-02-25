@@ -11,11 +11,36 @@ function connectComponentWithConfigPanel(componentName, componentString) {
 
 	// Populate Config Panel's controls with the initial property values of the component
 	configPanel.addEventListener('localDomLoaded', function() {
+
+
+		/*
+		// This was used when I was having behaviors containing only properties (in order to have
+		// property inheritance) 
+
+		// The component.properties object does not contain the properties added through Polymer Behaviors
+		// Because I'm using lists of properties inherited via behaviors, I'm adding below those properties
+		// manually to component.properties object
+
+		// if (component.behaviors) {
+		// 	for (var i = 0, len = component.behaviors.length; i < len; i++) {
+		// 		// if the behavior's object has only one property with the name of 'properties'
+		// 		// then this is what we're looking for
+		// 		if (Object.keys(component.behaviors[i]).length === 1 &&
+		// 			component.behaviors[i].properties &&
+		// 			Object.keys(component.behaviors[i].properties).length) {
+		// 			for (var attrname in component.behaviors[i].properties) {
+		// 				if (component.behaviors[i].properties.hasOwnProperty(attrname))
+		// 				component.properties[attrname] = component.behaviors[i].properties[attrname];
+		// 			}
+		// 		}
+		// 	}
+		// }
+		*/
+
 		for (var key in component.properties) {
 			if (component.properties.hasOwnProperty(key)) {
 				if (typeof(component.properties[key]) === 'object') {
 					
-					// console.log(key, component[key]);
 					configPanel.setControlValue(key, component[key]);
 
 				}
