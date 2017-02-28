@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-color-picker/paper-color-input.html">
@@ -27,10 +26,6 @@
 	paper-dropdown-menu {
 		width: 100%;
 	}
-	paper-toggle-button {
-		position: relative;
-		top: 10px;
-	}
 	paper-checkbox {
 		/*position: relative;*/
 		/*top: 6px;*/
@@ -52,9 +47,6 @@
 		--paper-input-container-label-floating: {
 			font-size: 21px;
 		}
-	}
-	paper-dropdown-menu {
-		
 	}
 	paper-menu paper-item {
 		--paper-item-focused-before: {
@@ -228,13 +220,6 @@
 									<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
 										<div class="subtabs-content">
 											<template is="dom-repeat" items="{{subtab.controls}}" as="control">
-										
-												<!-- <template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
-													<div class="control">
-														<div class="control-label">{{control.name}}</div>
-														<paper-toggle-button label="{{control.name}}"></paper-toggle-button>
-													</div>
-												</template> -->
 
 												<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
 													<div class="control">
@@ -246,7 +231,7 @@
 																</template>
 															</span>
 														</div>
-														<paper-checkbox id="{{control.id}}" class="main-control"></paper-checkbox>
+														<paper-checkbox id="{{control.id}}" class="main-control" css-property$="{{control.css}}"></paper-checkbox>
 													</div>
 												</template>
 
@@ -266,13 +251,13 @@
 																</template>
 															</span>
 														</div>
-														<paper-slider id="{{control.id}}" class="main-control" min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" editable></paper-slider>
+														<paper-slider id="{{control.id}}" class="main-control" min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" editable css-property$="{{control.css}}"></paper-slider>
 													</div>
 												</template>
 
 												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
 													<div class="control">
-														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
+														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}" css-property$="{{control.css}}"></paper-color-input>
 													</div>
 												</template>
 
@@ -286,7 +271,7 @@
 																</template>
 															</span>
 														</div>
-														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float>
+														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float css-property$="{{control.css}}">
 															<paper-listbox class="dropdown-content">
 																<template is="dom-repeat" items="{{control.options}}" as="option">
 																	<paper-item>{{option}}</paper-item>
@@ -304,81 +289,6 @@
 										</div>
 									</template>
 								</iron-pages>
-
-							</template>
-
-							<!-- this dom-if template is very similar with 'exists(tab.subtab)' template above -->
-							<!-- any changes made in this one most probably need the same change on the above one -->
-							<!-- and vice-versa -->
-							<template is="dom-if" if="{{exists(tab.controls)}}">
-									
-									<iron-pages class="subtabs-contents" selected="0">
-
-										<div class="subtabs-content">
-											<template is="dom-repeat" items="{{tab.controls}}" as="control">
-
-												<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
-													<div class="control">
-														<div class="control-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-checkbox id="{{control.id}}" class="main-control"></paper-checkbox>
-													</div>
-												</template>
-												
-												<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
-													<div class="control">
-														<div class="control-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-slider min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" id="{{control.id}}" class="main-control" editable></paper-slider>
-													</div>
-												</template>
-
-												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
-													<div class="control">
-														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}"></paper-color-input>
-													</div>
-												</template>
-
-												<template is="dom-if" if="{{isEqual(control.type, 'dropdown')}}">
-													<div class="control">
-														<div class="control-label dropdown-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float>
-															<paper-listbox class="dropdown-content">
-																<template is="dom-repeat" items="{{control.options}}" as="option">
-																	<paper-item>{{option}}</paper-item>
-																</template>
-															</paper-listbox>
-														</paper-dropdown-menu>
-													</div>
-												</template>
-
-											</template>
-
-											<template is="dom-repeat" items="{{emptyControls}}">
-												<div class="control"></div>
-											</template>
-										</div>
-
-									</iron-pages>
 
 							</template>
 
@@ -452,6 +362,7 @@ Polymer({
 			this.fire('localDomLoaded');
 
 			this.getLimits();
+			this.getJsonResponse();
 			this.getSlaveDuplicates();
 			
 			var dropdowns = this.querySelectorAll('paper-dropdown-menu.main-control');			
@@ -514,16 +425,20 @@ Polymer({
 		this.duplicates = duplicates;
 	},
 
-
 	getLimits: function() {
 		this.onJsonLoaded(function(response) {
 			forEach(response, function(obj) {
-				if (obj.limits) {					
+				if (obj.limits) {
 					this.limits = obj.limits;
 				} else {
 					this.limits = [];
 				}
 			}, this);
+		}, this);
+	},
+	getJsonResponse: function() {
+		this.onJsonLoaded(function(response) {
+			this.jsonResponse = response;
 		}, this);
 	},
 	checkDropdownLimits: function(dropdown) {
@@ -589,19 +504,19 @@ Polymer({
 		for (var i = 0; i < dropdown.contentElement.items.length; i++) {
 			options.push(dropdown.contentElement.items[i].innerHTML.trim());
 		}
-		this.fire('controlChanged', {name: dropdown.id, value: options[e.target.selected] });
+		this.fire('controlChanged', {name: dropdown.id, value: options[e.target.selected], cssProperty: dropdown.getAttribute('css-property')});
 
 		this.checkDropdownLimits(dropdown);
 	},
 	sliderChanged: function(e) {
-		this.fire('controlChanged', {name: e.target.id, value: e.target.value});
+		this.fire('controlChanged', {name: e.target.id, value: e.target.value, cssProperty: e.target.getAttribute('css-property')});
 	},
 	checkboxChanged: function(e) {
-		this.fire('controlChanged', {name: e.target.id, value: e.target.checked});
+		this.fire('controlChanged', {name: e.target.id, value: e.target.checked, cssProperty: e.target.getAttribute('css-property')});
 		this.checkCheckboxLimits(e.target);
 	},
 	colorChanged: function(e, firedObject) {
-		this.fire('controlChanged', {name: e.target.parentNode.id, value: firedObject.rgbaColor});
+		this.fire('controlChanged', {name: e.target.parentNode.id, value: firedObject.rgbaColor, cssProperty: e.target.getAttribute('css-property')});
 	},
 
 
@@ -656,15 +571,14 @@ Polymer({
 		forEach(controls, function(control) {				
 			
 			if (control.tagName === 'PAPER-SLIDER' || control.tagName === 'PAPER-DROPDOWN-MENU') {
-				result.push({name: control.id, value: control.value});
+				result.push({name: control.id, value: control.value, cssProperty: control.getAttribute('css-property')});
 			}
 			if (control.tagName === 'PAPER-CHECKBOX') {
-				result.push({name: control.id, value: control.checked});
+				result.push({name: control.id, value: control.checked, cssProperty: control.getAttribute('css-property')});
 			}
 			if (control.tagName === 'PAPER-COLOR-INPUT') {
-				result.push({name: control.id, value: control.$$('paper-color-picker').rgbaColor});
+				result.push({name: control.id, value: control.$$('paper-color-picker').rgbaColor, cssProperty: control.getAttribute('css-property')});
 			}
-
 
 		});
 
