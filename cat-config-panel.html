@@ -18,6 +18,8 @@
 
 <link rel="import" href="themes/technology/technology.html">
 
+<!-- <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script> -->
+
 <dom-module id="cat-config-panel">
 
 	<style include="iron-flex iron-flex-alignment"></style>
@@ -97,11 +99,12 @@
 	:host {
 		font-family: 'Roboto', 'Noto', sans-serif;
 		font-weight: 300;
+		margin-left: auto;
 	}
 
 	.panel {
 		padding: 36px;
-		margin: 30px;
+		margin: 30px auto;
 		background: #eee;
 		max-width: 1200px;
 	}
@@ -113,7 +116,7 @@
 		@apply(--layout-wrap);
 	}
 	.tabs-contents {
-		margin-top: 36px;
+		/*margin-top: 36px;*/
 	}
 	.subtabs {
 		@apply(--layout-flex-1);
@@ -181,6 +184,21 @@
 		margin-bottom: 0;
 		border: none;
 	}
+	.publish {
+		background: #fff;
+		white-space: pre-wrap;
+		/*width: 100%;*/
+		margin: 0;
+		margin-top: 20px;
+		padding: 0 20px;
+		box-shadow: 0 0 10px rgba(0,0,0,.12);
+		font-size: 13px;
+		color: #555;
+	}
+	.generated-info {
+		margin-top: 40px;
+		font-size: 18px;
+	}
 	
 
 	</style>
@@ -196,106 +214,109 @@
 
 		<div class="panel">
 		
-			<paper-tabs class="tabs" selected="{{selectedTab}}">
+			<!-- <paper-tabs class="tabs" selected="{{selectedTab}}">
 				<template is="dom-repeat" items="{{ajaxResponse}}" as="tab">
 					<template is="dom-if" if="{{exists(tab.tabName)}}">
 						<paper-tab>{{tab.tabName}}</paper-tab>
 					</template>
 				</template>
-			</paper-tabs>
+			</paper-tabs> -->
 
 			<iron-pages class="tabs-contents" selected="{{selectedTab}}">
-					<template is="dom-repeat" items="{{ajaxResponse}}" as="tab">
-						<div class="tab"> 
+				<template is="dom-repeat" items="{{ajaxResponse}}" as="tab">
+					<div class="tab"> 
+						
+						<template is="dom-if" if="{{exists(tab.subtabs)}}">
+
+							<paper-menu class="subtabs" selected="{{selectedSubtab}}">
+								<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
+									<paper-item class="subtab">{{subtab.subtabName}}</paper-item>
+								</template>
+							</paper-menu>
+
+							<iron-pages class="subtabs-contents" selected="{{selectedSubtab}}">
+								<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
+									<div class="subtabs-content">
+										<template is="dom-repeat" items="{{subtab.controls}}" as="control">
+
+											<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
+												<div class="control">
+													<div class="control-label">
+														<span>{{control.name}}
+															<template is="dom-if" if="{{exists(control.tip)}}">
+																<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>					
+																<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+															</template>
+														</span>
+													</div>
+													<paper-checkbox id="{{control.id}}" class="main-control" css-property$="{{control.css}}"></paper-checkbox>
+												</div>
+											</template>
+
+											<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
+												<div class="control">
+													<div class="control-label">
+														<span>{{control.name}}
+															<template is="dom-if" if="{{exists(control.tip)}}">
+																<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
+																<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+															</template>
+														</span>
+													</div>
+													<paper-slider id="{{control.id}}" class="main-control" min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" editable css-property$="{{control.css}}"></paper-slider>
+												</div>
+											</template>
+
+											<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
+												<div class="control">
+													<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}" css-property$="{{control.css}}"></paper-color-input>
+												</div>
+											</template>
+
+											<template is="dom-if" if="{{isEqual(control.type, 'dropdown')}}">
+												<div class="control">
+													<div class="control-label dropdown-label">
+														<span>{{control.name}}
+															<template is="dom-if" if="{{exists(control.tip)}}">
+																<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
+																<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
+															</template>
+														</span>
+													</div>
+													<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float css-property$="{{control.css}}">
+														<paper-listbox class="dropdown-content">
+															<template is="dom-repeat" items="{{control.options}}" as="option">
+																<paper-item>{{option}}</paper-item>
+															</template>
+														</paper-listbox>
+													</paper-dropdown-menu>
+												</div>
+											</template>
+
+										</template>
+
+										<template is="dom-repeat" items="{{emptyControls}}">
+											<div class="control"></div>
+										</template>
+									</div>
+								</template>
+							</iron-pages>
+
+						</template>
+
+						<template is="dom-if" if="{{exists(tab.content)}}">
 							
-							<template is="dom-if" if="{{exists(tab.subtabs)}}">
+						</template>
 
-								<paper-menu class="subtabs" selected="{{selectedSubtab}}">
-									<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
-										<paper-item class="subtab">{{subtab.subtabName}}</paper-item>
-									</template>
-								</paper-menu>
+					</div>
 
-								<iron-pages class="subtabs-contents" selected="{{selectedSubtab}}">
-									<template is="dom-repeat" items="{{tab.subtabs}}" as="subtab">
-										<div class="subtabs-content">
-											<template is="dom-repeat" items="{{subtab.controls}}" as="control">
-
-												<template is="dom-if" if="{{isEqual(control.type, 'toggle')}}">
-													<div class="control">
-														<div class="control-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>					
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-checkbox id="{{control.id}}" class="main-control" css-property$="{{control.css}}"></paper-checkbox>
-													</div>
-												</template>
-
-												<!-- <template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
-													<div class="control">
-														<paper-input type="number" label="{{control.name}}"></paper-input>
-													</div>
-												</template> -->
-
-												<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
-													<div class="control">
-														<div class="control-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-slider id="{{control.id}}" class="main-control" min="{{control.min}}" max="{{control.max}}" step="{{control.step}}" editable css-property$="{{control.css}}"></paper-slider>
-													</div>
-												</template>
-
-												<template is="dom-if" if="{{isEqual(control.type, 'color')}}">
-													<div class="control">
-														<paper-color-input shape="huebox" allow-alpha always-show-alpha id="{{control.id}}" class="main-control" label="{{control.name}}" css-property$="{{control.css}}"></paper-color-input>
-													</div>
-												</template>
-
-												<template is="dom-if" if="{{isEqual(control.type, 'dropdown')}}">
-													<div class="control">
-														<div class="control-label dropdown-label">
-															<span>{{control.name}}
-																<template is="dom-if" if="{{exists(control.tip)}}">
-																	<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
-																	<paper-tooltip position="top" fit-to-visible-bounds for="{{control.id}}Badge" animation-delay="0">{{control.tip}}</paper-tooltip>
-																</template>
-															</span>
-														</div>
-														<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float css-property$="{{control.css}}">
-															<paper-listbox class="dropdown-content">
-																<template is="dom-repeat" items="{{control.options}}" as="option">
-																	<paper-item>{{option}}</paper-item>
-																</template>
-															</paper-listbox>
-														</paper-dropdown-menu>
-													</div>
-												</template>
-
-											</template>
-
-											<template is="dom-repeat" items="{{emptyControls}}">
-												<div class="control"></div>
-											</template>
-										</div>
-									</template>
-								</iron-pages>
-
-							</template>
-
-						</div>
-	
-					</template>
+				</template>
 			</iron-pages>
+
+			<p class="generated-info">Generated HTML based on the selections above:</p>
+			<pre class="publish">
+				{{publish}}
+			</pre>
 
 		</div>
 
@@ -307,7 +328,8 @@ Polymer({
 	is: 'cat-config-panel',
 	
 	properties: {
-		sourceFile: String
+		sourceFile: String,
+		publish: {type: String, value: ''}
 	},
 	
 	ready: function() {
@@ -584,6 +606,10 @@ Polymer({
 
 		return result;
 
+	},
+
+	setPublishHtml: function(val) {
+		this.publish = val;
 	}
 });
 

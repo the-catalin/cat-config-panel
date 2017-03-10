@@ -1,4 +1,4 @@
-function connectComponentWithConfigPanel(componentName, styleObj, componentString) {
+function connectComponentWithConfigPanel(componentName, styleObj, componentString, includes) {
 
 	function forEach(array, callback, scope) {
 		for (var i = 0; i < array.length; i++) {
@@ -13,16 +13,16 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 	function buildCssFromObj(obj) {
 		var googleFonts = ['Open Sans', 'Lato', 'Raleway', 'Roboto', "Oswald", "Roboto Condensed", "PT Sans", "Baloo", "Open Sans Condensed", "Indie Flower", "Abel"];
 		var fontLink = '';
-		var returnString = '<style>';
+		var returnString = '<style>\n';
 
 		for (var selector in obj) {
 			if (obj.hasOwnProperty(selector)) {
 			
-				returnString += selector + '{';
+				returnString += '    ' + selector + ' {\n';
 				for (var prop in obj[selector]) {
 					if (obj[selector].hasOwnProperty(prop)) {
-						returnString += dashedLowercase(prop);
-						returnString += ':';
+						returnString += '        ' + dashedLowercase(prop);
+						returnString += ': ';
 						returnString += obj[selector][prop];
 
 						if (typeof obj[selector][prop] === 'number' &&
@@ -32,21 +32,21 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 						if (prop === 'fontFamily' && googleFonts.indexOf(obj[selector][prop] !== -1)) {
 							fontLink = '<link href="https://fonts.googleapis.com/css?family=' +
 								obj[selector][prop].replace(' ','+') +
-								':' + (obj[selector].fontWeight ? obj[selector].fontWeight : '') +
-								'" rel="stylesheet">';
+								(obj[selector].fontWeight ? ':' + obj[selector].fontWeight : '') +
+								'" rel="stylesheet">\n\n';
 						}
 						if (prop === 'width' || prop === 'height') {
 							returnString += ' !important';
 						}
-						returnString += ';';
+						returnString += ';\n';
 					}
 				}
-				returnString += '}';
+				returnString += '    }\n';
 
 			}
 		}
 
-		return fontLink + returnString + '</style>';
+		return fontLink + returnString + '</style>\n';
 	}
 
 				
@@ -69,14 +69,16 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 		backgroundColor: 'rgba(0,0,0,0)',
 		borderStyle: 'none',
 		borderWidth: 3,
+		borderRadius: 0,
 		fontFamily: 'Times New Roman',
 		fontWeight: 400
 	};
 
 	configPanel.addEventListener('localDomLoaded', function() {
 
-		//Populate the CSS properties with the default values first
 		controls = configPanel.getControls();
+
+		//Populate the CSS properties with the default values first
 		forEach(controls, function(control) {
 			if(control.cssProperty) {
 				configPanel.setControlValue(control.name, cssDefaults[control.name]);
@@ -103,7 +105,8 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 			}
 		}
 
-
+		controls = configPanel.getControls();
+		buildPublishString();
 	});
 
 
@@ -141,7 +144,65 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 		demo.insertAdjacentHTML('afterbegin', styleString);
 
 		document.body.insertBefore(demo, configPanel);
-			
-		
+
+		buildPublishString();
+
 	});
+
+
+	/**
+	 * Build Publish tab's string content
+	 */
+	function buildPublishString() {
+		var s = '\n';
+
+		s += '<html>\n<head>\n\n';
+
+		s += includes;
+		
+		var tempStyleObj = {};
+		forEach(controls, function(control) {
+			if(control.cssProperty) {
+				if (!tempStyleObj[control.cssProperty]) {
+					tempStyleObj[control.cssProperty] = {};
+				}
+				if (control.value !== cssDefaults[control.name]) {
+					tempStyleObj[control.cssProperty][control.name] = control.value;
+				}
+			}
+		});
+		
+		s += buildCssFromObj(tempStyleObj) + '\n';
+
+
+		s += '</head>\n<body>\n\n';
+
+		var newComponentString = '', attributes = '';
+
+		forEach(controls, function(control) {
+			if(!control.cssProperty) {
+				if (typeof(component.properties[control.name]) === 'object' &&
+					component.properties[control.name].value !== control.value &&
+					control.name[0] !== '_') {
+					// console.log(component.properties[control.name], control.value);
+					attributes += ' ' + dashedLowercase(control.name) + '="' + control.value + '"';
+				}
+			}
+		});
+
+		newComponentString = componentString.insert(componentString.indexOf('>'), attributes);
+
+		s += newComponentString;
+
+		s += '\n\n'+'</body>\n</html>';
+
+		configPanel.setPublishHtml(s);
+
+		// console.log(component.properties);
+
+	}
+
+	String.prototype.insert = function(start, newSubStr) {
+    	return this.slice(0, start) + newSubStr + this.slice(start);
+    };
 }
