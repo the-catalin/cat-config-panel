@@ -35,9 +35,9 @@ function connectComponentWithConfigPanel(componentName, styleObj, componentStrin
 								(obj[selector].fontWeight ? ':' + obj[selector].fontWeight : '') +
 								'" rel="stylesheet">\n\n';
 						}
-						if (prop === 'width' || prop === 'height') {
-							returnString += ' !important';
-						}
+						// if (prop === 'width' || prop === 'height') {
+						// 	returnString += ' !important';
+						// }
 						returnString += ';\n';
 					}
 				}

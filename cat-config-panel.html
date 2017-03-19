@@ -33,7 +33,7 @@
 		/*top: 6px;*/
 		--paper-checkbox-label: {
 			font-size: 14px;
-	    	color: #919191;
+	    	color: #999999;
 		}
 	}
 	paper-input, paper-color-input, paper-dropdown-menu, paper-slider {
@@ -42,15 +42,25 @@
 		}
 		--paper-input-container-input: {
 			margin-top: 6px;
+			font-weight: 400;
 		}
 		--paper-input-container-label-focus: {
 			margin-top: 0;
 		}
 		--paper-input-container-label-floating: {
 			font-size: 21px;
+			font-weight: 400;
 		}
+
+	}
+	
+	.dropdown-item {
+		min-height: 38px;
+		font-size: 15px;
+		font-weight: 400;
 	}
 	paper-menu paper-item {
+		font-weight: 400;
 		--paper-item-focused-before: {
 			background: #fff;
 		}
@@ -98,7 +108,7 @@
 
 	:host {
 		font-family: 'Roboto', 'Noto', sans-serif;
-		font-weight: 300;
+		font-weight: 400 !important;
 		margin-left: auto;
 	}
 
@@ -123,31 +133,40 @@
 		background: #eee;
 		padding: 0;
 		position: relative;
-		right: 10px;
+		right: 8px;
 	}
 	.subtab {
-		background: #f9fafb;
+		left: 5px;
+		background: #f7f8f9;
 		margin-bottom: 3px;
 		color: #999;
 		cursor: pointer;
-		transition: left .2s,background-color.2s;
+		transition: all .2s;
 		position: relative;
-		left: 5px;
 		justify-content: flex-end;
 		padding: 0 24px;
 		text-align: center;
 		line-height: 54px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.subtab:last-of-type {
+		margin-bottom: 0;
 	}
 	.subtab.iron-selected {
+		border-right: none;
 		background: #fff;
-		font-weight: 300;
-		box-shadow: -4px 0 10px -4px rgba(0,0,0,.12),10px 0 0 0 #fff,0 -4px 10px -4px rgba(0,0,0,.12),0 4px 10px -4px rgba(0,0,0,.12);
+		font-weight: 400;
+		/*box-shadow: -4px 0 10px -4px rgba(0,0,0,.12),10px 0 0 0 #fff,0 -4px 10px -4px rgba(0,0,0,.12),0 4px 10px -4px rgba(0,0,0,.12);*/
 		left: 0;
+		right: 0;
+		width: 108%;
+
 	}
 	.subtabs-contents {
 		@apply(--layout-flex-2);
 		background: #fff;
-		box-shadow: 0 0 10px rgba(0,0,0,.12);
+		/*box-shadow: 0 0 10px rgba(0,0,0,.12);*/
 	}
 	.subtabs-content {
 		@apply(--layout-horizontal);
@@ -166,9 +185,13 @@
 	}
 	.control-label {
 		font-size: 16px;
-		color: #919191;
-		margin-bottom: 7px;
+		color: #999999;
+		margin-bottom: 9px;
 	}
+	.slider-label {
+		margin-bottom: 4px;
+	}
+
 	[disabled].control {
 		opacity: 0.33;
 		pointer-events : none;
@@ -191,13 +214,13 @@
 		margin: 0;
 		margin-top: 20px;
 		padding: 0 20px;
-		box-shadow: 0 0 10px rgba(0,0,0,.12);
+		/*box-shadow: 0 0 10px rgba(0,0,0,.12);*/
 		font-size: 13px;
 		color: #555;
 	}
 	.generated-info {
 		margin-top: 40px;
-		font-size: 18px;
+		font-size: 16px;
 	}
 	
 
@@ -255,7 +278,7 @@
 
 											<template is="dom-if" if="{{isEqual(control.type, 'numeric-input')}}">
 												<div class="control">
-													<div class="control-label">
+													<div class="control-label slider-label">
 														<span>{{control.name}}
 															<template is="dom-if" if="{{exists(control.tip)}}">
 																<span class="infoicon"><iron-icon id="{{control.id}}Badge" icon="icons:info-outline"></iron-icon></span>
@@ -286,7 +309,7 @@
 													<paper-dropdown-menu id="{{control.id}}" class="main-control" no-label-float css-property$="{{control.css}}">
 														<paper-listbox class="dropdown-content">
 															<template is="dom-repeat" items="{{control.options}}" as="option">
-																<paper-item>{{option}}</paper-item>
+																<paper-item class="dropdown-item">{{option}}</paper-item>
 															</template>
 														</paper-listbox>
 													</paper-dropdown-menu>
